@@ -1,0 +1,192 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=<device-width>, initial-scale=1.0">
+    <title>Form-Submit</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+            background: url('https://images.unsplash.com/photo-1548983965-416c1920352e?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') no-repeat center center/cover;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            position: relative;
+        }
+        Form {
+            display: inline-block;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        input[type="file"],
+        input[type="text"],
+        input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        h2 {
+            color: #333;
+        }
+        @media (max-width: 640px) {
+            Form {
+                width: 90%;
+            }
+            input[type="file"],
+            input[type="text"],
+            input[type="date"] {
+                width: 100%;
+            }
+        }
+        @media (max-width: 480px) {
+            button {
+                width: 100%;
+                padding: 15px;
+                font-size: 18px;
+            }
+        }
+        @media (max-width: 320px) {
+            h2 {
+                font-size: 24px;
+            }
+            input[type="file"],
+            input[type="text"],
+            input[type="date"] {
+                width: 100%;
+            }
+        }
+        @media (min-width: 1024px) {
+            body {
+                font-size: 18px;
+            }
+            Form {
+                width: 50%;
+            }
+            input[type="file"],
+            input[type="text"],
+            input[type="date"] {
+                width: 100%;
+            }
+        }
+        @media (min-width: 1280px) {
+            body {
+                font-size: 20px;
+            }
+            Form {
+                width: 40%;
+            }
+            input[type="file"],
+            input[type="text"],
+            input[type="date"] {
+                width: 100%;
+            }
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:active {
+            background-color: #3e8e41;
+        }
+        button:focus {
+            outline: none;
+            box-shadow: 0 0 5px #4CAF50;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        button:disabled:hover {
+            background-color: #ccc;
+        }
+        button:disabled:active {
+            background-color: #ccc;
+        }
+        button:disabled:focus {
+            box-shadow: none;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        input[type="file"] {
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        input[type="file"]:focus {
+            border-color: #4CAF50;
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <Form id="faceForm" method="POST" enctype="multipart/form-data">
+        <h2>Face Recognition Form</h2>
+        <label for="image">Profile Photo</label>
+        <input type="file" name="image" id="image" accept="image/*" required>
+        <label for="username">Username</label>
+        <input type="text" name="username" id="username" placeholder="Name That You Give While uploading Image" required>
+        <label for="Email">Email</label>
+        <input type="text" name="email" id="Email" placeholder="Email" required>
+        <label for="Address">Address</label>
+        <input type="text" name="Address" id="Address" placeholder="Address" required>
+        <label for="phone">Phone Number</label>
+        <input type="text" name="phone" id="phone" placeholder="Phone Number" required>
+        <label for="date">Birth Date</label>
+        <input type="date" name="date" id="date">
+        <button type="submit">Submit</button>
+
+        <script>
+        const form = document.getElementById('faceForm');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();  // prevent default form submission
+
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch('/save_form/', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert("Data submitted successfully!");
+                    form.reset();
+                } else {
+                    alert("Failed to submit: " + result.message);
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("An error occurred while submitting the form.");
+            }
+        });
+    </script>
+
+    </Form>
+</body>
+</html>

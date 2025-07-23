@@ -1,0 +1,177 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Webcam Capture</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: url('https://images.unsplash.com/photo-1548983965-416c1920352e?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') no-repeat center center/cover;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            position: relative;
+        }
+        h1 {
+            font-size: 32px;
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+        video {
+            border: 2px solid #007bff;
+            border-radius: 5px;
+            width: 640px;
+            height: 480px;
+            background-color: #000;
+            display: block;
+            margin: 0 auto;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #151515ff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+        }
+        input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            width: 200px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        #status {
+            margin-top: 20px;
+            font-size: 18px;
+            color: green;
+        }
+        label {
+            font-size: 18px;
+            margin-right: 10px;
+            color: #ffffff;
+        }
+        #goToFormBtn, #trainModel {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Capture Image For Training</h1>
+
+    <label for="personName">Enter your name:</label>
+    <input type="text" id="personName" placeholder="e.g., John" required>
+    <br><br>
+
+    <video id="video" width="640" height="480" autoplay></video>
+    <br>
+
+    <div style="margin-top: 20px; display: flex; justify-content: center; gap: 20px;">
+        <button onclick="startCapture()">Start Capture</button>
+        <button><a href="/" style="text-decoration: none; color: #fff;">Go Back</a></button>
+        <button id="trainModel" onclick="startTraining()">Start Training</button>
+        <button id="goToFormBtn">
+            <a href="/form_submit/" style="text-decoration: none; color: #fff;">Go To Form</a>
+        </button>
+    </div>
+
+    <p id="status"></p>
+
+    <script>
+        const video = document.getElementById('video');
+        const status = document.getElementById('status');
+        const totalImages = 30;
+        let count = 0;
+
+        // Start webcam
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                video.srcObject = stream;
+            })
+            .catch(err => {
+                console.error("Webcam error:", err);
+            });
+
+        function startCapture() {
+            const personName = document.getElementById('personName').value.trim();
+            if (!personName) {
+                alert("Please enter your name.");
+                return;
+            }
+
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 640;
+            canvas.height = 480;
+
+            count = 0;
+            const interval = setInterval(() => {
+                if (count >= totalImages) {
+                    clearInterval(interval);
+                    status.innerText = "✅ Images captured. You can now start training.";
+                    document.getElementById('trainModel').style.display = 'inline-block';
+                    return;
+                }
+
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const imageData = canvas.toDataURL('image/jpeg');
+
+                fetch('/upload/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        image: imageData,
+                        index: count,
+                        person_name: personName
+                    })
+                })
+                .then(res => res.text())
+                .then(msg => console.log(msg));
+
+                status.innerText = `📸 Capturing ${count + 1}/${totalImages}`;
+                count++;
+            }, 300);
+        }
+
+        function startTraining() {
+            const personName = document.getElementById('personName').value.trim();
+            if (!personName) {
+                alert("Please enter your name before training.");
+                return;
+            }
+
+            status.innerText = "⏳ Training in progress...";
+
+            fetch('/training/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ person_name: personName })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    status.innerText = "✅ Training Done!";
+                    document.getElementById('goToFormBtn').style.display = 'inline-block';
+                    alert("✅ Training completed successfully!");
+                } else {
+                    status.innerText = "❌ Training failed. Please try again.";
+                    alert("❌ Training failed.");
+                }
+            })
+            .catch(error => {
+                console.error('Training error:', error);
+                status.innerText = "❌ Error during training.";
+                alert("❌ Error occurred during training.");
+            });
+        }
+    </script>
+</body>
+</html>

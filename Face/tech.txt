@@ -1,0 +1,7 @@
+1. python 3.10 version
+2. capture done
+3. annotation done
+4. yolov8 tarnining for face detection
+5. cut yolo v8 detection part and use face embedding to recoginize face
+Vijit699@
+vijitkumar699

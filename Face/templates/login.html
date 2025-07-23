@@ -1,0 +1,396 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Webcam Face Recognition</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+            background: url('https://images.unsplash.com/photo-1548983965-416c1920352e?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') no-repeat center center/cover;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+            position: relative;
+        }
+        video, canvas {
+            border: 10px solid white;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+        h2 {
+            color: #ffffff;
+        }
+        #video {
+            width: 640px;
+            height: 480px;
+        }
+        #canvas {
+            display: none; /* Hide canvas as it's used for processing */
+            width: 640px;
+            height: 480px;
+
+        }
+        input[type="text"] {
+            width: 300px;
+            padding: 12px 16px;
+            margin: 10px;
+            display: block;
+            font-size: 16px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            background-color: white;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #4A90E2;
+            box-shadow: 0 0 8px rgba(74, 144, 226, 0.4);
+        }
+
+        @media (max-width: 640px) {
+            #video {
+                width: 100%;
+                height: auto;
+            }
+        }
+        @media (max-width: 480px) {
+            button {
+                width: 100%;
+                padding: 15px;
+                font-size: 18px;
+            }
+        }
+        @media (max-width: 320px) {
+            h2 {
+                font-size: 24px;
+            }
+            video, canvas {
+                width: 100%;
+                height: auto;
+            }
+        }
+        @media (min-width: 1024px) {
+            body {
+                font-size: 18px;
+            }
+            video, canvas {
+                width: 800px;
+                height: 600px;
+            }
+            button {
+                font-size: 20px;
+            }
+        }
+        @media (min-width: 1280px) {
+            body {
+                font-size: 20px;
+            }
+            video, canvas {
+                width: 960px;
+                height: 720px;
+            }
+            button {
+                font-size: 22px;
+            }
+        }
+        @media (min-width: 1440px) {
+            body {
+                font-size: 22px;
+            }
+            video, canvas {
+                width: 1080px;
+                height: 810px;
+            }
+            button {
+                font-size: 24px;
+            }
+        }
+        @media (min-width: 1600px) {
+            body {
+                font-size: 24px;
+            }
+            video, canvas {
+                width: 1200px;
+                height: 900px;
+            }
+            button {
+                font-size: 26px;
+            }
+        }
+        @media (min-width: 1920px) {
+            body {
+                font-size: 26px;
+            }
+            video, canvas {
+                width: 1440px;
+                height: 1080px;
+            }
+            button {
+                font-size: 28px;
+            }
+        }
+        @media (min-width: 2560px) {
+            body {
+                font-size: 28px;
+            }
+            video, canvas {
+                width: 1920px;
+                height: 1080px;
+            }
+            button {
+                font-size: 30px;
+            }
+        }
+        @media (min-width: 3840px) {
+            body {
+                font-size: 30px;
+            }
+            video, canvas {
+                width: 2560px;
+                height: 1440px;
+            }
+            button {
+                font-size: 32px;
+            }
+        }
+        @media (min-width: 7680px) {
+            body {
+                font-size: 32px;
+            }
+            video, canvas {
+                width: 3840px;
+                height: 2160px;
+            }
+            button {
+                font-size: 34px;
+            }
+        }
+        @media (max-width: 1024px) {
+            .content h1 {
+                font-size: 36px;
+            }
+            .content h3 {
+                font-size: 20px;
+            }
+            .buttons button {
+                padding: 8px 15px;
+                font-size: 12px;
+            }
+        }
+        @media (max-width: 768px) {
+            .content h1 {
+                font-size: 32px;
+            }
+            .content h3 {
+                font-size: 18px;
+            }
+            .buttons button {
+                padding: 6px 10px;
+                font-size: 10px;
+            }
+        }
+        .content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .content h1 {
+            font-size: 64px;
+            color: #333;
+        }
+        .content h3 {
+            font-size: 32px;
+            color: #666;
+        }
+        .buttons {
+            margin-top: 20px;
+        }
+        .buttons button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .buttons button:hover {
+            background-color: #0056b3;
+        }
+        .buttons button:focus {
+            outline: none;
+        }
+        .buttons button:active {
+            transform: scale(0.95);
+        }
+        .buttons button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .buttons button:disabled:hover {
+            background-color: #007BFF;
+            color: white;
+            border-color: #007BFF;
+        }
+        .buttons button:disabled:active {
+            transform: none;
+        }
+        .highlight {
+            color: #FF5733;
+            font-weight: bold;
+        }
+        .content h4 {
+            font-size: 24px;
+            color: #999;
+            margin-top: 10px;
+        }
+        .content h4 span.highlight {
+            color: #FF5733;
+        }
+        .content h2 {
+            font-size: 48px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .content h2 span.highlight {
+            color: #FF5733;
+        }
+        .content h3 {
+            font-size: 28px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        .content h3 span.highlight {
+            color: #FF5733;
+        }
+        .content h4 {
+            font-size: 20px;
+            color: #999;
+            margin-bottom: 30px;
+        }
+        .content h4 span.highlight {
+            color: #FF5733;
+        }
+        .content h1, .content h2, .content h3, .content h4 {
+            font-weight: 300;
+            margin-bottom: 20px;
+        }
+        .content h1, .content h2, .content h3, .content h4 {
+            font-weight: 300;
+            margin-bottom: 20px;
+        }
+        .content h1, .content h2, .content h3, .content h4 {
+            font-weight: 300;
+            margin-bottom: 20px;
+        }
+        
+        
+    </style>
+</head>
+<body>
+    <h2>Live Face Recognition</h2>
+    <video id="video" autoplay playsinline width="640" height="480"></video>
+    <canvas id="canvas" style="display:none;"></canvas><br><br>
+    <div style="margin-top: 20px; display: flex; justify-content: center; gap: 20px;">
+    <input type="text" id="phoneInput" placeholder="Enter your phone number" required>
+    <button id="verifyBtn">Verify Phone Number</button>
+    </div>
+    <br><br>
+
+
+    {% comment %} <button id="startBtn" style="display:none">Start Camera</button>
+    <button id="stopBtn" style="display:none">Stop Camera</button> {% endcomment %}
+    <button id="back"  onclick="window.location.href='/'">Back to Home</button>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+
+        let stream;
+        let intervalId;
+        let unknownAlertShown = false;  // prevent multiple alerts
+        const verifyBtn = document.getElementById('verifyBtn');
+        const phoneInput = document.getElementById('phoneInput');
+        const ph = "";
+
+        verifyBtn.onclick = async () => {
+            const phone = phoneInput.value.trim();
+            if (!phone) {
+                alert("Please enter your phone number.");
+                return;
+            }
+            const res = await fetch('/check_phone/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phone: phone })
+            });
+
+            const data = await res.json();
+
+            if (data.exists) {
+                alert("Phone number verified. Starting camera...");
+                unknownAlertShown = false;
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                intervalId = setInterval(sendFrame, 1500);
+            } else {
+                alert("Phone number not found in database.");
+            }
+        };
+
+        async function sendFrame() {
+            const ctx = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const dataURL = canvas.toDataURL('image/jpeg');
+
+            const response = await fetch('/detect_face/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: dataURL })
+            });
+
+            const result = await response.json();
+            console.log(result);
+
+            if (result.success) {
+                if (result.name !== "Unknown") {
+                    window.location.href = `/cards/?name=${result.name}&phone=${document.getElementById("phoneInput").value.trim()}`;
+                } else if (!unknownAlertShown) {
+                    alert("This person does not exist in our database.");
+                    unknownAlertShown = true;
+                }
+            }
+        }
+
+        startBtn.onclick = async () => {
+            unknownAlertShown = false;  // reset alert flag on start
+            stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
+            intervalId = setInterval(sendFrame, 1500);
+        };
+
+        stopBtn.onclick = () => {
+            clearInterval(intervalId);
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        };
+    </script>
+</body>
+</html>
