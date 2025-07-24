@@ -37,6 +37,7 @@ flatbuffers==25.2.10
 fonttools==4.58.5
 fsspec==2025.5.1
 gdown==5.2.0
+gunicorn==22.0.0
 huggingface-hub==0.33.4
 humanfriendly==10.0
 idna==3.7
@@ -146,4 +147,3 @@ wcwidth==0.2.13
 widgetsnbextension==4.0.14
 yapf==0.43.0
 zipp==3.18.2
-gunicorn
