@@ -60,7 +60,7 @@ lazy_loader
 MarkupSafe
 matplotlib
 matplotlib-inline
-mediapipe
+# mediapipe
 ml_dtypes
 mongoengine
 mpmath
